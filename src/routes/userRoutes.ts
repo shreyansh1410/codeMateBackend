@@ -1,6 +1,10 @@
 import express from "express";
 import User, { IUser } from "../models/User";
-import validator from "validator";
+import {
+  validateEmail,
+  validateMongoId,
+  validateUserUpdate,
+} from "../utils/validators";
 
 const router = express.Router();
 
@@ -26,17 +30,17 @@ router.get("/user", async (req, res) => {
     return res.status(400).json({ message: "Email ID is required" });
   }
 
-  if (!validator.isEmail(emailId)) {
-    return res
-      .status(400)
-      .json({ message: "Please provide a valid email address" });
+  const emailValidation = validateEmail(emailId);
+  if (!emailValidation.isValid) {
+    return res.status(400).json({
+      message: emailValidation.message,
+    });
   }
 
   try {
-    const normalizedEmail = validator.normalizeEmail(emailId);
-    const user = await User.findOne({ emailId: normalizedEmail }).select(
-      "-password"
-    );
+    const user = await User.findOne({
+      emailId: emailValidation.sanitizedData,
+    }).select("-password");
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -55,8 +59,11 @@ router.get("/user:id", async (req, res) => {
     return res.status(400).json({ message: "User ID is required" });
   }
 
-  if (!validator.isMongoId(id)) {
-    return res.status(400).json({ message: "Invalid user ID format" });
+  const idValidation = validateMongoId(id);
+  if (!idValidation.isValid) {
+    return res.status(400).json({
+      message: idValidation.message,
+    });
   }
 
   try {
@@ -79,8 +86,11 @@ router.delete("/user:userId", async (req, res) => {
     return res.status(400).json({ message: "User ID is required" });
   }
 
-  if (!validator.isMongoId(userId)) {
-    return res.status(400).json({ message: "Invalid user ID format" });
+  const idValidation = validateMongoId(userId);
+  if (!idValidation.isValid) {
+    return res.status(400).json({
+      message: idValidation.message,
+    });
   }
 
   try {
@@ -105,8 +115,11 @@ router.patch("/user/:userId", async (req, res) => {
     return res.status(400).json({ message: "User ID is required" });
   }
 
-  if (!validator.isMongoId(userId)) {
-    return res.status(400).json({ message: "Invalid user ID format" });
+  const idValidation = validateMongoId(userId);
+  if (!idValidation.isValid) {
+    return res.status(400).json({
+      message: idValidation.message,
+    });
   }
 
   try {
@@ -133,89 +146,21 @@ router.patch("/user/:userId", async (req, res) => {
       });
     }
 
-    // Validate skills array length if it's being updated
-    if (userData.skills) {
-      if (!Array.isArray(userData.skills) || userData.skills.length > 10) {
-        return res.status(400).json({ message: "Maximum 10 skills allowed" });
-      }
-      if (
-        userData.skills.some(
-          (skill: string) => !validator.isLength(skill, { max: 30 })
-        )
-      ) {
-        return res
-          .status(400)
-          .json({ message: "Each skill cannot exceed 30 characters" });
-      }
-      // Trim each skill
-      userData.skills = userData.skills.map((skill: string) =>
-        validator.trim(skill)
-      );
+    const validationResult = validateUserUpdate(userData);
+    if (!validationResult.isValid) {
+      return res.status(400).json({
+        message: validationResult.message,
+      });
     }
 
-    // Validate bio length if it's being updated
-    if (userData.bio) {
-      if (!validator.isLength(userData.bio, { max: 200 })) {
-        return res
-          .status(400)
-          .json({ message: "Bio cannot exceed 200 characters" });
+    const user = await User.findByIdAndUpdate(
+      userId,
+      validationResult.sanitizedData,
+      {
+        new: true,
+        runValidators: true,
       }
-      userData.bio = validator.trim(userData.bio);
-    }
-
-    // Validate photoURL if it's being updated
-    if (userData.photoURL) {
-      if (!validator.isURL(userData.photoURL)) {
-        return res
-          .status(400)
-          .json({ message: "Photo URL must be a valid HTTP/HTTPS URL" });
-      }
-    }
-
-    // Validate and sanitize other fields
-    if (userData.firstName) {
-      if (!validator.isLength(userData.firstName, { min: 2, max: 30 })) {
-        return res
-          .status(400)
-          .json({ message: "First name must be between 2 and 30 characters" });
-      }
-      userData.firstName = validator.trim(userData.firstName);
-    }
-
-    if (userData.lastName) {
-      if (!validator.isLength(userData.lastName, { max: 30 })) {
-        return res
-          .status(400)
-          .json({ message: "Last name cannot exceed 30 characters" });
-      }
-      userData.lastName = validator.trim(userData.lastName);
-    }
-
-    if (userData.age) {
-      const ageNum = Number(userData.age);
-      if (isNaN(ageNum) || ageNum < 18 || ageNum > 150) {
-        return res
-          .status(400)
-          .json({ message: "Age must be between 18 and 150 years" });
-      }
-      userData.age = ageNum;
-    }
-
-    if (userData.gender) {
-      const validGenders = ["male", "female", "others", "prefer not to say"];
-      if (!validGenders.includes(userData.gender.toLowerCase())) {
-        return res.status(400).json({
-          message:
-            "Gender must be one of: male, female, others, prefer not to say",
-        });
-      }
-      userData.gender = userData.gender.toLowerCase();
-    }
-
-    const user = await User.findByIdAndUpdate(userId, userData, {
-      new: true,
-      runValidators: true,
-    });
+    );
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
