@@ -5,21 +5,12 @@ import {
   validateEmail,
   validatePassword,
 } from "../utils/validators";
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
 
 const cookieOptions = {
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",
   sameSite: "strict" as const,
-  maxAge: 24 * 60 * 60 * 1000, // 24 hours
-};
-
-const generateAuthToken = (userId: string): string => {
-  const JWT_SECRET = process.env.JWT_SECRET!;
-  return jwt.sign({ id: userId }, JWT_SECRET, {
-    expiresIn: "24h",
-  });
+  maxAge: 24 * 60 * 60 * 1000 * 7,
 };
 
 export const registerUser = async (req: Request, res: Response) => {
@@ -43,18 +34,14 @@ export const registerUser = async (req: Request, res: Response) => {
       });
     }
 
-    // Hash password
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(
-      validationResult.sanitizedData.password,
-      salt
-    );
+    // Create user (password will be hashed by pre-save middleware)
+    const user = await User.create(validationResult.sanitizedData);
 
-    // Create user with hashed password
-    const user = await User.create({
-      ...validationResult.sanitizedData,
-      password: hashedPassword,
-    });
+    // Generate JWT token
+    const token = user.generateAuthToken();
+
+    // Set token in cookie
+    res.cookie("token", token, cookieOptions);
 
     // Create user response without password
     const userResponse = {
@@ -73,6 +60,7 @@ export const registerUser = async (req: Request, res: Response) => {
       success: true,
       message: "User registered successfully",
       user: userResponse,
+      token,
     });
   } catch (error: any) {
     res.status(500).json({
@@ -112,8 +100,8 @@ export const loginUser = async (req: Request, res: Response) => {
       });
     }
 
-    // Compare password
-    const isMatch = await bcrypt.compare(password, user.password);
+    // Compare password using schema method
+    const isMatch = await user.comparePassword(password);
     if (!isMatch) {
       return res.status(401).json({
         success: false,
@@ -121,9 +109,8 @@ export const loginUser = async (req: Request, res: Response) => {
       });
     }
 
-    // Generate JWT token
-    const uid: any = user._id;
-    const token = generateAuthToken(uid.toString());
+    // Generate JWT token using schema method
+    const token = user.generateAuthToken();
 
     // Set token in cookie
     res.cookie("token", token, cookieOptions);
