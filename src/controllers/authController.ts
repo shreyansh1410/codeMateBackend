@@ -25,7 +25,6 @@ export const registerUser = async (req: Request, res: Response) => {
 
     const { emailId } = validationResult.sanitizedData;
 
-    // Check if user already exists
     const existingUser = await User.findOne({ emailId });
     if (existingUser) {
       return res.status(400).json({
@@ -34,16 +33,12 @@ export const registerUser = async (req: Request, res: Response) => {
       });
     }
 
-    // Create user (password will be hashed by pre-save middleware)
     const user = await User.create(validationResult.sanitizedData);
 
-    // Generate JWT token
     const token = user.generateAuthToken();
 
-    // Set token in cookie
     res.cookie("token", token, cookieOptions);
 
-    // Create user response without password
     const userResponse = {
       _id: user._id,
       firstName: user.firstName,
@@ -91,7 +86,6 @@ export const loginUser = async (req: Request, res: Response) => {
       });
     }
 
-    // Find user and include password field
     const user = await User.findOne({ emailId }).select("+password");
     if (!user) {
       return res.status(401).json({
@@ -100,7 +94,6 @@ export const loginUser = async (req: Request, res: Response) => {
       });
     }
 
-    // Compare password using schema method
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
       return res.status(401).json({
@@ -109,13 +102,10 @@ export const loginUser = async (req: Request, res: Response) => {
       });
     }
 
-    // Generate JWT token using schema method
     const token = user.generateAuthToken();
 
-    // Set token in cookie
     res.cookie("token", token, cookieOptions);
 
-    // Create user response without password
     const userResponse = {
       _id: user._id,
       firstName: user.firstName,

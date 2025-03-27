@@ -6,11 +6,10 @@ import {
 } from "../controllers/authController";
 import auth from "../middleware/auth";
 
-const router = express.Router();
+const authRouter = express.Router();
 
-// Authentication routes
-router.post("/register", registerUser);
-router.post("/login", loginUser);
-router.post("/logout", auth, logoutUser);
+authRouter.post("/register", registerUser);
+authRouter.post("/login", loginUser);
+authRouter.post("/logout", auth, logoutUser);
 
-export default router;
+export default authRouter;
