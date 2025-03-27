@@ -122,11 +122,13 @@ UserSchema.methods.comparePassword = async function (
 
 // Hash password before saving
 UserSchema.pre("save", async function (next) {
+  const user = this;
   if (!this.isModified("password")) {
     next();
   }
   const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password as string, salt);
+  const hashedPassword = await bcrypt.hash(user.password as string, salt);
+  user.password = hashedPassword;
 });
 
 export default mongoose.model<IUser>("User", UserSchema);
