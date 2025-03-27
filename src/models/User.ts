@@ -1,6 +1,4 @@
 import mongoose, { Schema, Document } from "mongoose";
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
 
 export interface IUser extends Document {
   firstName: string;
@@ -13,8 +11,6 @@ export interface IUser extends Document {
   bio?: string;
   createdAt: Date;
   photoURL?: string;
-  matchPassword(enteredPassword: string): Promise<boolean>;
-  generateAuthToken(): string;
 }
 
 const UserSchema: Schema = new Schema(
@@ -30,6 +26,7 @@ const UserSchema: Schema = new Schema(
       type: String,
       trim: true,
       maxlength: [30, "Last name cannot exceed 30 characters"],
+      required: false,
     },
     emailId: {
       type: String,
@@ -46,6 +43,7 @@ const UserSchema: Schema = new Schema(
       type: Number,
       min: [18, "Age must be at least 18 years"],
       max: [150, "Please enter a valid age"],
+      required: false,
     },
     gender: {
       type: String,
@@ -59,12 +57,13 @@ const UserSchema: Schema = new Schema(
           );
         }
       },
+      required: false,
     },
     password: {
       type: String,
       required: [true, "Please add a password"],
       minlength: [6, "Password must be at least 6 characters long"],
-      maxlength: [30, "Password cannot exceed 30 characters"],
+      maxlength: [300, "Password cannot exceed 300 characters"],
       select: false,
     },
     skills: {
@@ -75,6 +74,7 @@ const UserSchema: Schema = new Schema(
           throw new Error("Each skill cannot exceed 30 characters");
         }
       },
+      required: false,
     },
     bio: {
       type: String,
@@ -88,44 +88,17 @@ const UserSchema: Schema = new Schema(
     },
     photoURL: {
       type: String,
-      default: "https://www.inzone.ae/wp-content/uploads/2025/02/dummy-profile-pic.jpg",
+      default:
+        "https://www.inzone.ae/wp-content/uploads/2025/02/dummy-profile-pic.jpg",
       validate(value: string) {
         if (!value.startsWith("http://") && !value.startsWith("https://")) {
           throw new Error("Photo URL must be a valid HTTP/HTTPS URL");
         }
       },
+      required: false,
     },
   },
   { timestamps: true }
 );
-
-UserSchema.pre<IUser>("save", async function (next) {
-  if (!this.isModified("password")) {
-    next();
-  }
-
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
-});
-
-UserSchema.methods.matchPassword = async function (
-  enteredPassword: string
-): Promise<boolean> {
-  return await bcrypt.compare(enteredPassword, this.password);
-};
-
-UserSchema.methods.generateAuthToken = function (): string {
-  const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret_key_here";
-  return jwt.sign({ id: this._id }, JWT_SECRET, {
-    expiresIn: "30d",
-  });
-};
-
-UserSchema.pre("save", function (next) {
-  if (this.isModified("emailId") && !this.isNew) {
-    next(new Error("Email cannot be changed after registration"));
-  }
-  next();
-});
 
 export default mongoose.model<IUser>("User", UserSchema);
