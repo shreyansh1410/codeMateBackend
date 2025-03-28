@@ -150,12 +150,10 @@ export const updateProfile = async (req: Request, res: Response) => {
   }
 };
 
-// Change password
 export const changePassword = async (req: Request, res: Response) => {
   try {
     const { currentPassword, newPassword } = req.body;
 
-    // Validate new password
     const passwordValidation = validatePassword(newPassword);
     if (!passwordValidation.isValid) {
       return res.status(400).json({
@@ -164,7 +162,6 @@ export const changePassword = async (req: Request, res: Response) => {
       });
     }
 
-    // Find user and verify current password
     const user = await User.findById(req.user._id);
     if (!user) {
       return res.status(404).json({
@@ -181,7 +178,6 @@ export const changePassword = async (req: Request, res: Response) => {
       });
     }
 
-    // Update password
     user.password = newPassword;
     await user.save();
 

@@ -23,6 +23,7 @@ const UserSchema: Schema = new Schema(
       type: String,
       required: [true, "Please add a first name"],
       trim: true,
+      index: true,  //equi to schema.index({ firstName: 1})
       minlength: [2, "First name must be at least 2 characters long"],
       maxlength: [30, "First name cannot exceed 30 characters"],
     },
@@ -34,6 +35,7 @@ const UserSchema: Schema = new Schema(
     },
     emailId: {
       type: String,
+      index: true,
       required: [true, "Please add an email"],
       lowercase: true,
       unique: true,
@@ -52,6 +54,7 @@ const UserSchema: Schema = new Schema(
     gender: {
       type: String,
       lowercase: true,
+      index: true,
       validate(value: string) {
         if (
           !["male", "female", "others", "prefer not to say"].includes(value)
@@ -105,7 +108,8 @@ const UserSchema: Schema = new Schema(
   { timestamps: true }
 );
 
-// Generate JWT token
+UserSchema.index({ firstName: 1, lastName: 1 });
+
 UserSchema.methods.generateAuthToken = function (): string {
   const JWT_SECRET = process.env.JWT_SECRET!;
   return jwt.sign({ id: this._id }, JWT_SECRET, {
@@ -113,14 +117,12 @@ UserSchema.methods.generateAuthToken = function (): string {
   });
 };
 
-// Compare password
 UserSchema.methods.comparePassword = async function (
   userPassword: string
 ): Promise<boolean> {
   return bcrypt.compare(userPassword, this.password);
 };
 
-// Hash password before saving
 UserSchema.pre("save", async function (next) {
   const user = this;
   if (!this.isModified("password")) {

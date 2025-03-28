@@ -4,8 +4,8 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import authRoutes from "./routes/authRoutes";
-import userRoutes from "./routes/userRoutes";
 import profileRoutes from "./routes/profileRoutes";
+import requestRoutes from "./routes/requestRoute";
 
 dotenv.config();
 
@@ -21,8 +21,8 @@ app.use(
 );
 
 app.use("/api/auth", authRoutes);
-app.use("/api/users", userRoutes);
 app.use("/api/profile", profileRoutes);
+app.use("/api/request", requestRoutes);
 
 const PORT = process.env.PORT || 5000;
 
