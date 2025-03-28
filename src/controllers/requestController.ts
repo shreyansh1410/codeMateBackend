@@ -25,8 +25,13 @@ export const sendRequest = async (req: Request, res: Response) => {
     }
 
     const existingRequest = await RequestModel.findOne({
-      fromUserId,
-      toUserId,
+      $or: [
+        { fromUserId, toUserId },
+        {
+          fromUserId: toUserId,
+          toUserId: fromUserId,
+        },
+      ],
     });
     if (existingRequest) {
       return res.status(400).json({ err: "Request already sent" });
