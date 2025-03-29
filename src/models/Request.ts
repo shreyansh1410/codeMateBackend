@@ -1,4 +1,5 @@
 import mongoose, { Model, Schema } from "mongoose";
+import User from "./User";
 
 const RequestSchema = new Schema(
   {
@@ -6,9 +7,11 @@ const RequestSchema = new Schema(
       type: mongoose.Schema.Types.ObjectId,
       message: "fromUserId is not provided or invalid",
       required: true,
+      ref: User,
     },
     toUserId: {
       type: mongoose.Schema.Types.ObjectId,
+      ref: User,
       message: "toUserId is not provided or invalid",
       required: true,
     },

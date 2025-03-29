@@ -23,7 +23,7 @@ const UserSchema: Schema = new Schema(
       type: String,
       required: [true, "Please add a first name"],
       trim: true,
-      index: true,  //equi to schema.index({ firstName: 1})
+      index: true,  //equivalent to schema.index({ firstName: 1})
       minlength: [2, "First name must be at least 2 characters long"],
       maxlength: [30, "First name cannot exceed 30 characters"],
     },
