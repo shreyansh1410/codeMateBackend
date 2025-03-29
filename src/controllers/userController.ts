@@ -81,28 +81,21 @@ export const getUserFeed = async (req: Request, res: Response) => {
     });
 
     // 2. Build a set of user IDs to exclude:
-    //    - The logged-in user's own ID
-    //    - The other user from each request (if any)
+    //    - The to and from users from each request (includes the user itself)
     const exclusionUserIds = new Set<string>();
-    exclusionUserIds.add(loggedInUserId);
 
     userRequests.forEach((request) => {
       const fromId = request.fromUserId.toString();
       const toId = request.toUserId.toString();
 
-      if (fromId !== loggedInUserId) {
-        exclusionUserIds.add(fromId);
-      }
-      if (toId !== loggedInUserId) {
-        exclusionUserIds.add(toId);
-      }
+      exclusionUserIds.add(fromId);
+      exclusionUserIds.add(toId);
     });
 
     // Convert the set to an array
     const exclusionUserIdsArr = Array.from(exclusionUserIds);
 
     // 3. Find users that are not in the exclusion list.
-    //    Also exclude the email field from the response.
     const feedUsers = await UserModel.find({
       _id: { $nin: exclusionUserIdsArr },
     }).select("-emailId -createdAt -updatedAt -__v");
