@@ -41,6 +41,7 @@ export const getUserConnections = async (req: Request, res: Response) => {
       .populate("toUserId", SAFE_USER_DATA);
 
     const connectedUsers = connections.map((connection) => {
+      //cant just compare without converting to string, it wont work
       return connection.fromUserId._id.toString() === userId.toString()
         ? connection.toUserId // If logged-in user is sender, get recipient
         : connection.fromUserId; // If logged-in user is recipient, get sender
@@ -62,67 +63,53 @@ export const getUserConnections = async (req: Request, res: Response) => {
 
 export const getUserFeed = async (req: Request, res: Response) => {
   try {
-    const userId = req.user._id;
+    /*
+      should not see:
+      0. their own
+      1. accepted
+      2. interested
+      3. rejected
+      4. ignored
+      basically anyone whom user has already interacted with and rest all should be seen
+    */
 
-    // Find all requests where the current user is involved
-    const existingRequests = await RequestModel.find({
-      $or: [{ fromUserId: userId }, { toUserId: userId }],
+    const loggedInUserId = req.user._id;
+
+    // 1. Find all requests where the logged-in user is involved.
+    const userRequests = await RequestModel.find({
+      $or: [{ fromUserId: loggedInUserId }, { toUserId: loggedInUserId }],
     });
 
-    // Extract the user IDs from existing requests
-    const existingUserIds = existingRequests.flatMap((request) => [
-      request.fromUserId.toString(),
-      request.toUserId.toString(),
-    ]);
+    // 2. Build a set of user IDs to exclude:
+    //    - The logged-in user's own ID
+    //    - The other user from each request (if any)
+    const exclusionUserIds = new Set<string>();
+    exclusionUserIds.add(loggedInUserId);
 
-    // Add the current user's ID to the exclusion list
-    const excludeUserIds = [
-      ...new Set([...existingUserIds, userId.toString()]),
-    ];
+    userRequests.forEach((request) => {
+      const fromId = request.fromUserId.toString();
+      const toId = request.toUserId.toString();
 
-    // Find users who are not in the exclusion list
-    // Pagination parameters
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 10;
-    const skip = (page - 1) * limit;
-
-    // Optional filters
-    const filters: any = {};
-
-    // Add skill filter if provided
-    if (req.query.skills) {
-      const skillsArray = (req.query.skills as string).split(",");
-      filters.skills = { $in: skillsArray };
-    }
-
-    // Add gender filter if provided
-    if (req.query.gender) {
-      filters.gender = req.query.gender;
-    }
-
-    // Find users based on filters and pagination
-    const users = await UserModel.find({
-      _id: { $nin: excludeUserIds },
-      ...filters,
-    })
-      .select("firstName lastName emailId photoURL bio skills gender")
-      .skip(skip)
-      .limit(limit)
-      .sort({ createdAt: -1 });
-
-    // Get total count for pagination
-    const total = await UserModel.countDocuments({
-      _id: { $nin: excludeUserIds },
-      ...filters,
+      if (fromId !== loggedInUserId) {
+        exclusionUserIds.add(fromId);
+      }
+      if (toId !== loggedInUserId) {
+        exclusionUserIds.add(toId);
+      }
     });
+
+    // Convert the set to an array
+    const exclusionUserIdsArr = Array.from(exclusionUserIds);
+
+    // 3. Find users that are not in the exclusion list.
+    //    Also exclude the email field from the response.
+    const feedUsers = await UserModel.find({
+      _id: { $nin: exclusionUserIdsArr },
+    }).select("-emailId -createdAt -updatedAt -__v");
 
     return res.status(200).json({
-      success: true,
-      count: users.length,
-      total,
-      currentPage: page,
-      totalPages: Math.ceil(total / limit),
-      data: users,
+      msg: "Feed fetched successfully",
+      data: feedUsers,
     });
   } catch (err: any) {
     return res.status(500).json({
