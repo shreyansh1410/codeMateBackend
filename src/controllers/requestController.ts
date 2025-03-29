@@ -55,29 +55,30 @@ export const sendRequest = async (req: Request, res: Response) => {
 
 export const reviewRequest = async (req: Request, res: Response) => {
   try {
-    const fromUserId = req.user._id;
-    const status = req.params.status;
+    const currUserId = req.user._id;
+    const { status, requestId } = req.params;
+
     const allowedStatus = ["accepted", "rejected"];
-    const toUserId = req.params.toUserId;
     if (!allowedStatus.includes(status)) {
-      return res.status(400).json({ err: "Invalid status" });
-    }
-    if (fromUserId === toUserId) {
-      return res.status(500).json({ message: "Cannot review yourself" });
+      return res.status(400).json({ err: "Invalid review status" });
     }
 
-    const toUser = await UserModel.findById(toUserId);
-    if (!toUser) {
-      return res.status(404).json({ err: "toUser not found" });
-    }
-    const request = new RequestModel({
-      fromUserId,
-      toUserId,
-      status,
+    const request = await RequestModel.findOne({
+      _id: requestId,
+      toUserId: currUserId,
+      status: "interested",
     });
 
+    if (!request) {
+      return res.status(404).json({ err: "Request not found" });
+    }
+
+    request.status = status as "accepted" | "rejected";
     const data = await request.save();
-    return res.status(200).json(data);
+    return res.status(200).json({
+      msg: `Connection requested ${status} successfully`,
+      data,
+    });
   } catch (err: any) {
     return res.status(500).json({
       error: "Error while sending connection request",

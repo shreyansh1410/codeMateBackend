@@ -6,6 +6,6 @@ const router = express.Router();
 
 router.use(auth);
 router.post("/send/:status/:toUserId", sendRequest);
-router.post("/review/:status/:fromUserId", reviewRequest);
+router.post("/review/:status/:requestId", reviewRequest);
 
 export default router;

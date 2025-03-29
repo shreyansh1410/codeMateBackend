@@ -14,7 +14,7 @@ const RequestSchema = new Schema(
     },
     status: {
       type: String,
-      enum: ["pending", "interested", "ignored", "accepted", "rejected"],
+      enum: ["interested", "ignored", "accepted", "rejected"],
       message: "Please provide a valid status request",
     },
   },
@@ -25,9 +25,8 @@ const RequestSchema = new Schema(
 
 RequestSchema.pre("save", function (next) {
   const request = this;
-  if (request.fromUserId.equals(request.toUserId)) {
-    throw new Error("You cannot send request to yourself");
-  }
+  if (request.fromUserId === request.toUserId)
+    return next(new Error("You cannot send request to yourself"));
   next();
 });
 
