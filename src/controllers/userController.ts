@@ -61,8 +61,12 @@ export const getUserConnections = async (req: Request, res: Response) => {
   }
 };
 
+/* /feed?page=1&limit=10 */
 export const getUserFeed = async (req: Request, res: Response) => {
   try {
+    const pageNum = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+
     /*
       should not see:
       0. their own
@@ -83,7 +87,7 @@ export const getUserFeed = async (req: Request, res: Response) => {
     // 2. Build a set of user IDs to exclude:
     //    - The to and from users from each request (includes the user itself)
     const exclusionUserIds = new Set<string>();
-
+    exclusionUserIds.add(loggedInUserId);
     userRequests.forEach((request) => {
       const fromId = request.fromUserId.toString();
       const toId = request.toUserId.toString();
@@ -98,7 +102,10 @@ export const getUserFeed = async (req: Request, res: Response) => {
     // 3. Find users that are not in the exclusion list.
     const feedUsers = await UserModel.find({
       _id: { $nin: exclusionUserIdsArr },
-    }).select("-emailId -createdAt -updatedAt -__v");
+    })
+      .select(SAFE_USER_DATA)
+      .skip((pageNum - 1) * limit)
+      .limit(limit);
 
     return res.status(200).json({
       msg: "Feed fetched successfully",
