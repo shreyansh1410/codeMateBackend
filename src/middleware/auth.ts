@@ -26,36 +26,17 @@ const JWT_SECRET = process.env.JWT_SECRET!;
 
 const auth = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    let cookieToken, authToken;
+    const token = req.cookies.token;
 
-    if (req.cookies.token) {
-      cookieToken = req.cookies.token;
-    } else {
+    if (!token) {
       return res.status(401).json({
         success: false,
-        message: "Please login.",
-      });
-    }
-
-    if (req.headers.authorization?.startsWith("Bearer")) {
-      authToken = req.headers.authorization.split(" ")[1];
-    } else {
-      return res.status(401).json({
-        success: false,
-        message: "No token found in Authorization header.",
-      });
-    }
-
-    if (cookieToken !== authToken) {
-      return res.status(401).json({
-        success: false,
-        message: "You are not authorized to view this page",
+        message: "Please login to access this resource",
       });
     }
 
     try {
-      const decoded = jwt.verify(cookieToken, JWT_SECRET) as JwtPayload;
-
+      const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload;
       const user = await User.findById(decoded.id).select("-password");
 
       if (!user) {
