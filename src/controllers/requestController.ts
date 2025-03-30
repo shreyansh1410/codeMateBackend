@@ -81,7 +81,7 @@ export const reviewRequest = async (req: Request, res: Response) => {
     });
   } catch (err: any) {
     return res.status(500).json({
-      error: "Error while sending connection request",
+      error: "Error while reviewing connection request",
       message: err.message,
     });
   }
