@@ -4,7 +4,7 @@
   "description": "Find your coding partner",
   "main": "dist/app.js",
   "scripts": {
-    "start": "node dist/index.js",
+    "start": "node dist/app.js",
     "dev": "nodemon src/app.ts",
     "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
