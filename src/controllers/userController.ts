@@ -16,7 +16,7 @@ export const getReceivedRequests = async (req: Request, res: Response) => {
     return res.status(200).json({
       success: true,
       count: receivedRequests.length,
-      data: receivedRequests,
+      data: receivedRequests.map((request) => request.fromUserId),
     });
   } catch (err: any) {
     return res.status(500).json({

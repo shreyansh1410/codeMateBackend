@@ -7,68 +7,68 @@ import {
 } from "../utils/validators";
 import bcrypt from "bcryptjs";
 
-// Get all users (feed)
-export const getAllUsers = async (req: Request, res: Response) => {
-  try {
-    const users: Array<IUser> = await User.find({}).select("-password");
-    if (!users || users.length === 0) {
-      return res.status(404).json({ message: "No users found" });
-    }
-    res.json(users);
-  } catch (err) {
-    res
-      .status(500)
-      .json({ message: "Something went wrong while fetching users" });
-  }
-};
+// // Get all users (feed)
+// export const getAllUsers = async (req: Request, res: Response) => {
+//   try {
+//     const users: Array<IUser> = await User.find({}).select("-password");
+//     if (!users || users.length === 0) {
+//       return res.status(404).json({ message: "No users found" });
+//     }
+//     res.json(users);
+//   } catch (err) {
+//     res
+//       .status(500)
+//       .json({ message: "Something went wrong while fetching users" });
+//   }
+// };
 
-export const getUserByEmail = async (req: Request, res: Response) => {
-  const { emailId } = req.body;
-  if (!emailId) {
-    return res.status(400).json({ message: "Email ID is required" });
-  }
+// export const getUserByEmail = async (req: Request, res: Response) => {
+//   const { emailId } = req.body;
+//   if (!emailId) {
+//     return res.status(400).json({ message: "Email ID is required" });
+//   }
 
-  const emailValidation = validateEmail(emailId);
-  if (!emailValidation.isValid) {
-    return res.status(400).json({
-      message: emailValidation.message,
-    });
-  }
+//   const emailValidation = validateEmail(emailId);
+//   if (!emailValidation.isValid) {
+//     return res.status(400).json({
+//       message: emailValidation.message,
+//     });
+//   }
 
-  try {
-    const user = await User.findOne({
-      emailId: emailValidation.sanitizedData,
-    }).select("-password");
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-    res.json(user);
-  } catch (err) {
-    res
-      .status(500)
-      .json({ message: "Something went wrong while fetching user" });
-  }
-};
+//   try {
+//     const user = await User.findOne({
+//       emailId: emailValidation.sanitizedData,
+//     }).select("-password");
+//     if (!user) {
+//       return res.status(404).json({ message: "User not found" });
+//     }
+//     res.json(user);
+//   } catch (err) {
+//     res
+//       .status(500)
+//       .json({ message: "Something went wrong while fetching user" });
+//   }
+// };
 
-// Get user by ID
-export const getUserById = async (req: Request, res: Response) => {
-  const { userId } = req.params;
-  if (!userId) {
-    return res.status(400).json({ message: "User ID is required" });
-  }
+// // Get user by ID
+// export const getUserById = async (req: Request, res: Response) => {
+//   const { userId } = req.params;
+//   if (!userId) {
+//     return res.status(400).json({ message: "User ID is required" });
+//   }
 
-  try {
-    const user = await User.findById(userId).select("-password");
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-    res.json(user);
-  } catch (err) {
-    res
-      .status(500)
-      .json({ message: "Something went wrong while fetching user" });
-  }
-};
+//   try {
+//     const user = await User.findById(userId).select("-password");
+//     if (!user) {
+//       return res.status(404).json({ message: "User not found" });
+//     }
+//     res.json(user);
+//   } catch (err) {
+//     res
+//       .status(500)
+//       .json({ message: "Something went wrong while fetching user" });
+//   }
+// };
 
 // Get current user's profile
 export const getProfile = async (req: Request, res: Response) => {
@@ -194,25 +194,25 @@ export const changePassword = async (req: Request, res: Response) => {
 };
 
 // Delete current user's profile
-export const deleteProfile = async (req: Request, res: Response) => {
-  try {
-    const user = await User.findByIdAndDelete(req.user._id);
+// export const deleteProfile = async (req: Request, res: Response) => {
+//   try {
+//     const user = await User.findByIdAndDelete(req.user._id);
 
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "User not found",
-      });
-    }
+//     if (!user) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "User not found",
+//       });
+//     }
 
-    res.status(200).json({
-      success: true,
-      message: "Profile deleted successfully",
-    });
-  } catch (error: any) {
-    res.status(500).json({
-      success: false,
-      message: error.message || "Error deleting profile",
-    });
-  }
-};
+//     res.status(200).json({
+//       success: true,
+//       message: "Profile deleted successfully",
+//     });
+//   } catch (error: any) {
+//     res.status(500).json({
+//       success: false,
+//       message: error.message || "Error deleting profile",
+//     });
+//   }
+// };
