@@ -1,7 +1,6 @@
 import mongoose, { Schema, Document } from "mongoose";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
-import { JWT_SECRET_CONSTANT } from "../utils/constants";
 
 export interface IUser extends Document {
   firstName: string;
@@ -24,7 +23,7 @@ const UserSchema: Schema = new Schema(
       type: String,
       required: [true, "Please add a first name"],
       trim: true,
-      index: true,  //equivalent to schema.index({ firstName: 1})
+      index: true, 
       minlength: [2, "First name must be at least 2 characters long"],
       maxlength: [30, "First name cannot exceed 30 characters"],
     },
@@ -112,7 +111,7 @@ const UserSchema: Schema = new Schema(
 UserSchema.index({ firstName: 1, lastName: 1 });
 
 UserSchema.methods.generateAuthToken = function (): string {
-  const JWT_SECRET = process.env.JWT_SECRET || JWT_SECRET_CONSTANT;
+  const JWT_SECRET = process.env.JWT_SECRET!;
   return jwt.sign({ id: this._id }, JWT_SECRET, {
     expiresIn: "7d",
   });

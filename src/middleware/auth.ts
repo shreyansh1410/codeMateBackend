@@ -2,7 +2,6 @@ import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import User from "../models/User";
-import { JWT_SECRET_CONSTANT } from "../utils/constants";
 
 dotenv.config();
 
@@ -23,7 +22,7 @@ declare global {
   }
 }
 
-const JWT_SECRET = process.env.JWT_SECRET || JWT_SECRET_CONSTANT;
+const JWT_SECRET = process.env.JWT_SECRET!;
 
 const auth = async (req: Request, res: Response, next: NextFunction) => {
   try {
