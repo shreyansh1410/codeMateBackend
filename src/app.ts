@@ -30,7 +30,7 @@ app.use("/api/user", userRoutes);
 const PORT = process.env.PORT || 5000;
 
 mongoose
-  .connect(process.env.MONGODB_URI!)
+  .connect("mongodb+srv://shreyansh14010:LJiMPNr6Hr6NMDLa@cluster0.b3bth.mongodb.net/CodeMate")
   .then(() => {
     console.log("Connected to MongoDB");
     app.listen(PORT, () => {
