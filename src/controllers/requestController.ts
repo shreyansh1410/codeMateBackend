@@ -55,9 +55,11 @@ export const sendRequest = async (req: Request, res: Response) => {
     try {
       const subject = `New request from ${fromUser?.firstName} ${fromUser?.lastName}`;
       const body = `<h2>New Connection Request</h2>
-                   <p>Hello ${toUser?.firstName},</p>
+                   <p>Hello ${toUser?.firstName} ${toUser?.lastName},</p>
                    <p>You have received a new connection request from ${fromUser?.firstName} ${fromUser?.lastName}.</p>
                    <p>Login to your CodeMate account to accept or reject this request.</p>
+                   <p>Your email ID is ${toUser?.emailId}</p>
+                   <p>The sender's email ID is ${fromUser?.emailId}</p>
                    <p>Best regards,<br>The CodeMate Team</p>`;
       
       const emailRes = await run("shreyansh.14010@gmail.com", "noreply@codemate.diy", subject, body);
