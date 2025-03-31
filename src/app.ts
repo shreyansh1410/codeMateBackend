@@ -16,10 +16,10 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use(cors({
-  origin: ['http://localhost:5173', "http://3.108.220.117/"],
-  credentials: true, 
-  // methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-  // allowedHeaders: ['Content-Type', 'Authorization']
+  origin: ["http://localhost:5173", "http://3.108.220.117" , "http://localhost:5000"],
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 app.use("/api/auth", authRoutes);
