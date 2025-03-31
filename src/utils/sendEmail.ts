@@ -39,24 +39,33 @@ const createSendEmailCommand = (toAddress: string, fromAddress: string, subject:
   };
 
 const run = async (toAddress: string, fromAddress: string, subject: string, body: string) => {
-    const sendEmailCommand = createSendEmailCommand(
-        //both these email IDs should be verified in SES Identity
-        "shreyansh.14010@gmail.com",
-        "shreyansh@codemate.diy",
-        subject,
-        body
-    );
-
     try {
-        return await sesClient.send(sendEmailCommand);
-    } catch (caught) {
-        if (caught instanceof Error && caught.name === "MessageRejected") {
-        const messageRejectedError = caught;
-        return messageRejectedError;
+        console.log(`Attempting to send email from ${fromAddress} to ${toAddress}`);
+        console.log(`Using AWS region: ${process.env.AWS_REGION || 'ap-south-1'}`);
+        
+        // Use the provided parameters instead of hardcoded values
+        const sendEmailCommand = createSendEmailCommand(
+            "shreyansh.14010@gmail.com",
+            "shreyansh@codemate.diy",
+            subject,
+            body
+        );
+
+        const result = await sesClient.send(sendEmailCommand);
+        console.log("Email sent successfully:", result.MessageId);
+        return { success: true, messageId: result.MessageId };
+    } catch (error) {
+        console.error("Error sending email:", error);
+        if (error instanceof Error) {
+            return { 
+                success: false, 
+                error: error.message,
+                name: error.name,
+                stack: error.stack 
+            };
         }
-        throw caught;
+        return { success: false, error: String(error) };
     }
 };
   
-// snippet-end:[ses.JavaScript.email.sendEmailV3]
 export { run };

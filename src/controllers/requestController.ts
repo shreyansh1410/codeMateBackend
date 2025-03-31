@@ -38,26 +38,45 @@ export const sendRequest = async (req: Request, res: Response) => {
       return res.status(400).json({ err: "Request already sent" });
     }
 
+    const fromUser = await UserModel.findById(fromUserId);
+    if (!fromUser) {
+      return res.status(404).json({ err: "fromUser not found" });
+    }
+
     const request = new RequestModel({
       fromUserId,
       toUserId,
       status,
     });
 
-    const fromUser = await UserModel.findById(fromUserId);
-    if (!fromUser) {
-      return res.status(404).json({ err: "fromUser not found" });
-    }
-
     const data = await request.save();
 
-    const subject = `New request from ${fromUser?.firstName} ${fromUser?.lastName}`;
-    const body = `${toUser?.firstName} ${toUser?.lastName} have received a new connection request from ${fromUser?.firstName} ${fromUser?.lastName}.`;
-    const emailRes = await run(toUser.emailId, fromUser.emailId, subject, body);
-
-    console.log(emailRes);
-
-    return res.status(200).json(data);
+    // Send email notification
+    try {
+      const subject = `New request from ${fromUser?.firstName} ${fromUser?.lastName}`;
+      const body = `<h2>New Connection Request</h2>
+                   <p>Hello ${toUser?.firstName},</p>
+                   <p>You have received a new connection request from ${fromUser?.firstName} ${fromUser?.lastName}.</p>
+                   <p>Login to your CodeMate account to accept or reject this request.</p>
+                   <p>Best regards,<br>The CodeMate Team</p>`;
+      
+      const emailRes = await run("shreyansh.14010@gmail.com", "noreply@codemate.diy", subject, body);
+      
+      console.log("Email sending result:", emailRes);
+      
+      return res.status(200).json({
+        ...data.toObject(),
+        emailSent: emailRes.success
+      });
+    } catch (emailError) {
+      console.error("Error sending email:", emailError);
+      // Still return success for the connection request, just note email failed
+      return res.status(200).json({
+        ...data.toObject(),
+        emailSent: false,
+        emailError: emailError instanceof Error ? emailError.message : String(emailError)
+      });
+    }
   } catch (err: any) {
     return res.status(500).json({
       error: "Error while sending connection request",
