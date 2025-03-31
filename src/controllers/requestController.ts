@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import RequestModel from "../models/Request";
 import UserModel from "../models/User";
+import { run } from "../utils/sendEmail";
 
 export const sendRequest = async (req: Request, res: Response) => {
   try {
@@ -43,7 +44,19 @@ export const sendRequest = async (req: Request, res: Response) => {
       status,
     });
 
+    const fromUser = await UserModel.findById(fromUserId);
+    if (!fromUser) {
+      return res.status(404).json({ err: "fromUser not found" });
+    }
+
     const data = await request.save();
+
+    const subject = `New request from ${fromUser?.firstName} ${fromUser?.lastName}`;
+    const body = `${toUser?.firstName} ${toUser?.lastName} have received a new connection request from ${fromUser?.firstName} ${fromUser?.lastName}.`;
+    const emailRes = await run(toUser.emailId, fromUser.emailId, subject, body);
+
+    console.log(emailRes);
+
     return res.status(200).json(data);
   } catch (err: any) {
     return res.status(500).json({

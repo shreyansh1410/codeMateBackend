@@ -22,6 +22,7 @@
   "author": "Shreyansh Shukla",
   "license": "ISC",
   "dependencies": {
+    "@aws-sdk/client-ses": "^3.777.0",
     "@types/cookie-parser": "^1.4.8",
     "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.7",
