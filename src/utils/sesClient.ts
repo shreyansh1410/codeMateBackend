@@ -8,12 +8,12 @@ dotenv.config();
 const REGION = "ap-south-1";
 
 // Create SES service object with proper error handling
-const sesClient = new SESClient({ 
-  region: REGION, 
+const sesClient = new SESClient({
+  region: REGION,
   credentials: {
     accessKeyId: process.env.AWS_ACCESS_KEY || "",
-    secretAccessKey: process.env.AWS_SECRET_KEY || ""
-  }
+    secretAccessKey: process.env.AWS_SECRET_KEY || "",
+  },
 });
 
 export { sesClient };

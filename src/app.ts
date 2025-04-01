@@ -8,10 +8,15 @@ import profileRoutes from "./routes/profileRoutes";
 import requestRoutes from "./routes/requestRoute";
 import userRoutes from "./routes/userRoutes";
 import "./utils/cronjobs";
+import http from "http";
+import { intializeSocket } from "./utils/socket";
 
 dotenv.config();
 
 const app = express();
+
+const server = http.createServer(app);
+intializeSocket(server);
 
 app.use(express.json());
 app.use(cookieParser());
@@ -43,7 +48,7 @@ mongoose
   .connect(MONGODB_URI)
   .then(() => {
     console.log("Connected to MongoDB");
-    app.listen(PORT, () => {
+    server.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);
     });
   })

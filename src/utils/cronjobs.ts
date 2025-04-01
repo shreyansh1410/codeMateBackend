@@ -1,7 +1,7 @@
 import cron from "node-cron";
 import Request from "../models/Request";
 import { endOfDay, startOfDay, subDays } from "date-fns";
-import mongoose from "mongoose"; // Ensure Mongoose types are available
+import mongoose from "mongoose";
 import { run } from "../utils/sendEmail";
 
 cron.schedule("0 8 * * *", async () => {

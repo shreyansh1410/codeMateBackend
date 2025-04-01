@@ -61,12 +61,17 @@ export const sendRequest = async (req: Request, res: Response) => {
                    <p>Your email ID is ${toUser?.emailId}</p>
                    <p>The sender's email ID is ${fromUser?.emailId}</p>
                    <p>Best regards,<br>The CodeMate Team</p>`;
-      
-      const emailRes = await run("shreyansh.14010@gmail.com", "noreply@codemate.diy", subject, body);
-      
+
+      const emailRes = await run(
+        "shreyansh.14010@gmail.com",
+        "noreply@codemate.diy",
+        subject,
+        body
+      );
+
       return res.status(200).json({
         ...data.toObject(),
-        emailSent: emailRes.success
+        emailSent: emailRes.success,
       });
     } catch (emailError) {
       console.error("Error sending email:", emailError);
@@ -74,7 +79,8 @@ export const sendRequest = async (req: Request, res: Response) => {
       return res.status(200).json({
         ...data.toObject(),
         emailSent: false,
-        emailError: emailError instanceof Error ? emailError.message : String(emailError)
+        emailError:
+          emailError instanceof Error ? emailError.message : String(emailError),
       });
     }
   } catch (err: any) {

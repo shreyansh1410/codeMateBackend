@@ -50,25 +50,25 @@ import bcrypt from "bcryptjs";
 //   }
 // };
 
-// // Get user by ID
-// export const getUserById = async (req: Request, res: Response) => {
-//   const { userId } = req.params;
-//   if (!userId) {
-//     return res.status(400).json({ message: "User ID is required" });
-//   }
+// Get user by ID
+export const getUserById = async (req: Request, res: Response) => {
+  const { userId } = req.params;
+  if (!userId) {
+    return res.status(400).json({ message: "User ID is required" });
+  }
 
-//   try {
-//     const user = await User.findById(userId).select("-password");
-//     if (!user) {
-//       return res.status(404).json({ message: "User not found" });
-//     }
-//     res.json(user);
-//   } catch (err) {
-//     res
-//       .status(500)
-//       .json({ message: "Something went wrong while fetching user" });
-//   }
-// };
+  try {
+    const user = await User.findById(userId).select("-password");
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.json(user);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Something went wrong while fetching user" });
+  }
+};
 
 // Get current user's profile
 export const getProfile = async (req: Request, res: Response) => {

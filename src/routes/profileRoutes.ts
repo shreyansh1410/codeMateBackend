@@ -3,6 +3,7 @@ import {
   getProfile,
   updateProfile,
   changePassword,
+  getUserById,
   // deleteProfile,
   // getAllUsers,
   // getUserByEmail,
@@ -11,6 +12,7 @@ import {
 import auth from "../middleware/auth";
 
 const router = express.Router();
+router.get("/:userId", getUserById);
 
 router.use(auth);
 
