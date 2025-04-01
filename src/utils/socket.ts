@@ -1,4 +1,9 @@
 import { Server } from "socket.io";
+import crypto from "crypto";
+
+const createSecretRoomId = (roomId: string) => {
+  return crypto.createHash("sha256").update(roomId).digest("hex");
+};
 
 export const intializeSocket = (server: any) => {
   const io = new Server(server, {
@@ -22,7 +27,8 @@ export const intializeSocket = (server: any) => {
       "joinChat",
       ({ sendingUser, userId, targetUserId, receivingUser }) => {
         //create a room with participants
-        const roomId = [userId, targetUserId].sort().join("_");
+        let roomId = [userId, targetUserId].sort().join("_");
+        roomId = createSecretRoomId(roomId);
         console.log(`${sendingUser} has joined the room: `, roomId);
         socket.join(roomId);
       }
@@ -30,7 +36,8 @@ export const intializeSocket = (server: any) => {
     socket.on(
       "disconnet",
       ({ sendingUser, text, userId, targetUserId, receivingUser }) => {
-        const roomId = [userId, targetUserId].sort().join("_");
+        let roomId = [userId, targetUserId].sort().join("_");
+        roomId = createSecretRoomId(roomId);
         console.log(`${sendingUser} has left the room: `, roomId);
         socket.leave(roomId);
       }
@@ -38,7 +45,8 @@ export const intializeSocket = (server: any) => {
     socket.on(
       "sendMessage",
       ({ sendingUser, text, userId, targetUserId, receivingUser }) => {
-        const roomId = [userId, targetUserId].sort().join("_");
+        let roomId = [userId, targetUserId].sort().join("_");
+        roomId = createSecretRoomId(roomId);
         console.log(
           `${text} sent by ${sendingUser} to ${receivingUser} has been received by targetUserId`
         );
