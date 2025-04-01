@@ -7,6 +7,7 @@ import authRoutes from "./routes/authRoutes";
 import profileRoutes from "./routes/profileRoutes";
 import requestRoutes from "./routes/requestRoute";
 import userRoutes from "./routes/userRoutes";
+import "./utils/cronjobs";
 
 dotenv.config();
 
@@ -15,12 +16,20 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 
-app.use(cors({
-  origin: ["http://localhost:5173", "http://3.108.220.117" , "http://localhost:5000", "https://codemate.diy", "http://codemate.diy"],
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173",
+      "http://3.108.220.117",
+      "http://localhost:5000",
+      "https://codemate.diy",
+      "http://codemate.diy",
+    ],
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 
 app.use("/api/auth", authRoutes);
 app.use("/api/profile", profileRoutes);

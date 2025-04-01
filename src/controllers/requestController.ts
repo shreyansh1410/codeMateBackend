@@ -64,8 +64,6 @@ export const sendRequest = async (req: Request, res: Response) => {
       
       const emailRes = await run("shreyansh.14010@gmail.com", "noreply@codemate.diy", subject, body);
       
-      console.log("Email sending result:", emailRes);
-      
       return res.status(200).json({
         ...data.toObject(),
         emailSent: emailRes.success

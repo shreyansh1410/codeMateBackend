@@ -40,9 +40,6 @@ const createSendEmailCommand = (toAddress: string, fromAddress: string, subject:
 
 const run = async (toAddress: string, fromAddress: string, subject: string, body: string) => {
     try {
-        console.log(`Attempting to send email from ${fromAddress} to ${toAddress}`);
-        console.log(`Using AWS region: ${process.env.AWS_REGION || 'ap-south-1'}`);
-        
         // Use the provided parameters instead of hardcoded values
         const sendEmailCommand = createSendEmailCommand(
             "shreyansh.14010@gmail.com",
@@ -52,7 +49,6 @@ const run = async (toAddress: string, fromAddress: string, subject: string, body
         );
 
         const result = await sesClient.send(sendEmailCommand);
-        console.log("Email sent successfully:", result.MessageId);
         return { success: true, messageId: result.MessageId };
     } catch (error) {
         console.error("Error sending email:", error);
