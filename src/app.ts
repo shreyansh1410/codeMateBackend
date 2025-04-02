@@ -37,11 +37,11 @@ app.use(
   })
 );
 
-app.use("/api/auth", authRoutes);
-app.use("/api/profile", profileRoutes);
-app.use("/api/request", requestRoutes);
-app.use("/api/user", userRoutes);
-app.use("/api/chat", chatRoutes);
+app.use("/auth", authRoutes);
+app.use("/profile", profileRoutes);
+app.use("/request", requestRoutes);
+app.use("/user", userRoutes);
+app.use("/chat", chatRoutes);
 
 const PORT = process.env.PORT || 5000;
 const MONGODB_URI = process.env.MONGODB_URI!;

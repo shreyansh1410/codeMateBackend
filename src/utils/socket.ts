@@ -9,8 +9,6 @@ const createSecretRoomId = (roomId: string) => {
 
 export const intializeSocket = (server: any) => {
   const io = new Server(server, {
-    path:
-      process.env.NODE_ENV === "production" ? "/api/socket.io" : "/socket.io",
     cors: {
       origin: [
         "http://localhost:5173",
