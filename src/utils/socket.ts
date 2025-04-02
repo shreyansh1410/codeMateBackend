@@ -1,5 +1,6 @@
 import { Server } from "socket.io";
 import crypto from "crypto";
+import Chat from "../models/Chat";
 
 const createSecretRoomId = (roomId: string) => {
   return crypto.createHash("sha256").update(roomId).digest("hex");
@@ -44,19 +45,47 @@ export const intializeSocket = (server: any) => {
     );
     socket.on(
       "sendMessage",
-      ({ sendingUser, text, userId, targetUserId, receivingUser }) => {
-        let roomId = [userId, targetUserId].sort().join("_");
-        roomId = createSecretRoomId(roomId);
-        console.log(
-          `${text} sent by ${sendingUser} to ${receivingUser} has been received by targetUserId`
-        );
-        io.to(roomId).emit("receiveMessage", {
-          sendingUser,
-          text,
-          userId,
-          targetUserId,
-          receivingUser,
-        });
+      async ({ sendingUser, text, userId, targetUserId, receivingUser }) => {
+        try {
+          let roomId = [userId, targetUserId].sort().join("_");
+          roomId = createSecretRoomId(roomId);
+          console.log(
+            `${text} sent by ${sendingUser} to ${receivingUser} has been received by targetUserId`
+          );
+          // two options: either the chat is already present so just append to it or
+          // create a new chat and save it
+          const chat = await Chat.findOne({
+            participants: { $all: [userId, targetUserId] },
+          });
+          if (!chat) {
+            const newChat = new Chat({
+              participants: [userId, targetUserId],
+              messages: [
+                {
+                  senderId: userId,
+                  text,
+                },
+              ],
+            });
+            await newChat.save();
+          } else {
+            chat.messages.push({
+              senderId: userId,
+              text,
+            });
+            await chat.save();
+          }
+
+          io.to(roomId).emit("receiveMessage", {
+            sendingUser,
+            text,
+            userId,
+            targetUserId,
+            receivingUser,
+          });
+        } catch (err) {
+          console.error(err);
+        }
       }
     );
   });
