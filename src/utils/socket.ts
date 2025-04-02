@@ -1,6 +1,7 @@
 import { Server } from "socket.io";
 import crypto from "crypto";
 import Chat from "../models/Chat";
+import Request from "../models/Request";
 
 const createSecretRoomId = (roomId: string) => {
   return crypto.createHash("sha256").update(roomId).digest("hex");
@@ -26,8 +27,19 @@ export const intializeSocket = (server: any) => {
     // Handle events
     socket.on(
       "joinChat",
-      ({ sendingUser, userId, targetUserId, receivingUser }) => {
+      async ({ sendingUser, userId, targetUserId, receivingUser }) => {
         //create a room with participants
+        const requestStatus = await Request.find({
+          $or: [
+            { fromUserId: userId, toUserId: targetUserId },
+            { fromUserId: targetUserId, toUserId: userId },
+          ],
+          status: "accepted",
+        });
+
+        if (!requestStatus) {
+          throw new Error("You cannot send message to this user");
+        }
         let roomId = [userId, targetUserId].sort().join("_");
         roomId = createSecretRoomId(roomId);
         console.log(`${sendingUser} has joined the room: `, roomId);
@@ -50,7 +62,7 @@ export const intializeSocket = (server: any) => {
           let roomId = [userId, targetUserId].sort().join("_");
           roomId = createSecretRoomId(roomId);
           console.log(
-            `${text} sent by ${sendingUser} to ${receivingUser} has been received by targetUserId`
+            `${text} sent by ${sendingUser} to ${receivingUser} has been received by ${targetUserId}`
           );
           // two options: either the chat is already present so just append to it or
           // create a new chat and save it
