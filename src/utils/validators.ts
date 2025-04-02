@@ -64,15 +64,46 @@ const validatePassword = (password: string): ValidationResult => {
   if (!password) {
     return { isValid: false, message: "Password is required" };
   }
-  if (password.length < 6) {
+  if (password.length < 8) {
     return {
       isValid: false,
-      message: "Password must be at least 6 characters long",
+      message: "Password must be at least 8 characters long",
     };
   }
-  if (password.length > 300) {
-    return { isValid: false, message: "Password cannot exceed 300 characters" };
+  if (password.length > 64) {
+    return { isValid: false, message: "Password cannot exceed 64 characters" };
   }
+  if (password.startsWith(" ") || password.endsWith(" ")) {
+    return {
+      isValid: false,
+      message: "Password cannot start or end with spaces",
+    };
+  }
+  if (!/[A-Z]/.test(password)) {
+    return {
+      isValid: false,
+      message: "Password must contain at least one uppercase letter",
+    };
+  }
+  if (!/[a-z]/.test(password)) {
+    return {
+      isValid: false,
+      message: "Password must contain at least one lowercase letter",
+    };
+  }
+  if (!/\d/.test(password)) {
+    return {
+      isValid: false,
+      message: "Password must contain at least one digit",
+    };
+  }
+  if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+    return {
+      isValid: false,
+      message: "Password must contain at least one special character",
+    };
+  }
+
   return { isValid: true, message: "", sanitizedData: password };
 };
 
