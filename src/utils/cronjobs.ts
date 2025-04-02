@@ -22,7 +22,6 @@ cron.schedule("0 8 * * *", async () => {
     }>("fromUserId toUserId");
 
     if (!pendingRequests.length) {
-      console.log("No requests found");
       return;
     }
 
@@ -50,8 +49,6 @@ cron.schedule("0 8 * * *", async () => {
         );
       }
     }
-
-    console.log("Collected toUserIds:", Array.from(toUsers));
   } catch (err: unknown) {
     console.error("Cron Job Error:", err instanceof Error ? err.message : err);
   }

@@ -61,9 +61,6 @@ export const intializeSocket = (server: any) => {
         try {
           let roomId = [userId, targetUserId].sort().join("_");
           roomId = createSecretRoomId(roomId);
-          console.log(
-            `${text} sent by ${sendingUser} to ${receivingUser} has been received by ${targetUserId}`
-          );
           // two options: either the chat is already present so just append to it or
           // create a new chat and save it
           const chat = await Chat.findOne({

@@ -15,8 +15,6 @@ export const getChat = async (req: Request, res: Response) => {
       status: "accepted",
     });
 
-    console.log(requestStatus);
-
     if (!requestStatus || requestStatus.length === 0) {
       return res.status(401).json({
         message:
