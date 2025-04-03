@@ -98,3 +98,16 @@ export const webhook = async (req: Request, res: Response) => {
     res.status(400).json({ error: "Webhook signature verification failed" });
   }
 };
+
+export const verify = async (req: Request, res: Response) => {
+  const user = await User.findById(req.user._id);
+  if (!user) {
+    return res
+      .status(404)
+      .json({ error: "User not found in verification of payment" });
+  }
+  if (user.isPremium) {
+    return res.status(200).json({ isPremium: true });
+  }
+  return res.status(200).json({ isPremium: false });
+};

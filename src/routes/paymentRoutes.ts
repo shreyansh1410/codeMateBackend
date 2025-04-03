@@ -1,5 +1,5 @@
 import express from "express";
-import { createPayment, webhook } from "../controllers/paymentController";
+import { createPayment, webhook, verify } from "../controllers/paymentController";
 import auth from "../middleware/auth";
 
 const router = express.Router();
@@ -8,5 +8,7 @@ const router = express.Router();
 router.post("/create", auth, createPayment);
 //donot protect the webhook route
 router.post("/webhook", webhook);
+router.get("/verify", auth, verify);
 
 export default router;
+ 
