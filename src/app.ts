@@ -8,6 +8,7 @@ import profileRoutes from "./routes/profileRoutes";
 import requestRoutes from "./routes/requestRoute";
 import userRoutes from "./routes/userRoutes";
 import chatRoutes from "./routes/chatRoutes";
+import paymentRoutes from "./routes/paymentRoutes";
 import "./utils/cronjobs";
 import http from "http";
 import { intializeSocket } from "./utils/socket";
@@ -42,6 +43,7 @@ app.use("/profile", profileRoutes);
 app.use("/request", requestRoutes);
 app.use("/user", userRoutes);
 app.use("/chat", chatRoutes);
+app.use("/payment", paymentRoutes);
 
 const PORT = process.env.PORT || 5000;
 const MONGODB_URI = process.env.MONGODB_URI!;
