@@ -42,7 +42,7 @@ export const intializeSocket = (server: any) => {
         }
         let roomId = [userId, targetUserId].sort().join("_");
         roomId = createSecretRoomId(roomId);
-        console.log(`${sendingUser} has joined the room: `, roomId);
+        // console.log(`${sendingUser} has joined the room: `, roomId);
         socket.join(roomId);
       }
     );
@@ -51,7 +51,7 @@ export const intializeSocket = (server: any) => {
       ({ sendingUser, text, userId, targetUserId, receivingUser }) => {
         let roomId = [userId, targetUserId].sort().join("_");
         roomId = createSecretRoomId(roomId);
-        console.log(`${sendingUser} has left the room: `, roomId);
+        // console.log(`${sendingUser} has left the room: `, roomId);
         socket.leave(roomId);
       }
     );

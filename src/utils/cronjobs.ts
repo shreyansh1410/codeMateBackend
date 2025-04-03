@@ -53,5 +53,5 @@ cron.schedule("0 8 * * *", async () => {
     console.error("Cron Job Error:", err instanceof Error ? err.message : err);
   }
 
-  console.log("Running scheduled task", new Date());
+  // console.log("Running scheduled task", new Date());
 });

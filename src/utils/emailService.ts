@@ -19,18 +19,18 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-transporter.verify(function (error, success) {
-  if (error) {
-    console.error('SMTP Configuration Error:', error);
-  } else {
-    console.log('SMTP Server is ready to send emails');
-  }
-});
+// transporter.verify(function (error, success) {
+//   if (error) {
+//     console.error('SMTP Configuration Error:', error);
+//   } else {
+//     console.log('SMTP Server is ready to send emails');
+//   }
+// });
 
 export const sendWelcomeEmail = async (toEmail: string, firstName: string) => {
   try {
-    console.log('Attempting to send email from:', process.env.ZOHO_EMAIL);
-    console.log('To:', toEmail);
+    // console.log('Attempting to send email from:', process.env.ZOHO_EMAIL);
+    // console.log('To:', toEmail);
     
     const mailOptions = {
       from: process.env.ZOHO_EMAIL,
@@ -54,7 +54,7 @@ export const sendWelcomeEmail = async (toEmail: string, firstName: string) => {
     };
 
     const info = await transporter.sendMail(mailOptions);
-    console.log('Email sent successfully:', info.messageId);
+    // console.log('Email sent successfully:', info.messageId);
     return { success: true, messageId: info.messageId };
   } catch (error) {
     console.error('Error sending welcome email:', error);
