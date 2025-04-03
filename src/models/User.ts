@@ -13,6 +13,8 @@ export interface IUser extends Document {
   bio?: string;
   createdAt: Date;
   photoURL?: string;
+  isPremium?: boolean;
+  membershipType?: string;
   generateAuthToken(): string;
   comparePassword(candidatePassword: string): Promise<boolean>;
 }
@@ -103,6 +105,13 @@ const UserSchema: Schema = new Schema(
         }
       },
       required: false,
+    },
+    isPremium: {
+      type: Boolean,
+      default: false,
+    },
+    membershipType: {
+      type: String,
     },
   },
   { timestamps: true }

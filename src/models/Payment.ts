@@ -39,6 +39,7 @@ const paymentSchema = new Schema({
     planType: {
       type: String,
     },
+    
   },
   status: {
     type: String,
