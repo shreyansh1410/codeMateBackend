@@ -5,6 +5,7 @@ import {
   validateEmail,
   validatePassword,
 } from "../utils/validators";
+import { sendWelcomeEmail } from "../utils/emailService";
 
 const cookieOptions = {
   httpOnly: true,
@@ -34,6 +35,9 @@ export const registerUser = async (req: Request, res: Response) => {
     }
 
     const user = await User.create(validationResult.sanitizedData);
+
+    // Send welcome email
+    await sendWelcomeEmail(user.emailId, user.firstName);
 
     const token = user.generateAuthToken();
 
